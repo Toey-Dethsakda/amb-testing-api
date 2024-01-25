@@ -1,28 +1,62 @@
-// app.js
-const express = require('express');
-const bodyParser = require('body-parser');
+const express = require('express')
+require('dotenv').config()
+var cors = require('cors')
+var app = express()
 
-const app = express();
-const port = 3001;
+app.use(cors())
 
-// Middleware to parse JSON requests
-app.use(bodyParser.json());
+app.use(express.json())
 
-// Define routes
+const corsOptions = {
+    origin: ['http://localhost:3001', 'https://amb-testing-api.vercel.app'],
+    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+};
+
+const PORT = process.env.PORT
+
+const apiUrl = 'https://uat.ambsuperapi.com';
+const agentUsername = 'techautodev';
+const apiKey = 'techautodev@456';
+const productId = 'LIVECASINO';
+
 app.get('/', (req, res) => {
-  res.send('Hello, World!');
+    res.send('Hello World!')
+})
+
+app.get('/api/seamless/listgame', cors(corsOptions), async (req, res) => {
+    try {
+        // Make an API request using axios
+        const response = await axios.get(`${apiUrl}/seamless/games?productId`, {
+            params: {
+                productId,
+            },
+            headers: {
+                Authorization: `Basic ${Buffer.from(`${agentUsername}:${apiKey}`).toString('base64')}`,
+                'Content-Type': 'application/json',
+            },
+        });
+
+        // Assuming the API response contains a list of games
+        const games = response.data;
+
+        res.status(200).json({ message: 'Successfully fetched games', games });
+    } catch (error) {
+        console.error('Error fetching games:', error.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
 });
 
-app.get('/api/data', (req, res) => {
-  res.json({ message: 'API data response' });
+app.post('/api/seamless/login', cors(corsOptions), function (req, res, next) {
+    try {
+        const { productId } = req.body;
+
+        res.status(201).json({ message: 'Location point inserted successfully' });
+    } catch (error) {
+        console.error('Error inserting point: ', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
 });
 
-app.post('/api/data', (req, res) => {
-  const { data } = req.body;
-  res.json({ message: `Received data: ${data}` });
-});
-
-// Start the server
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
-});
+app.listen(PORT, () => {
+    console.log(`Example app listening on port ${PORT}`)
+})
