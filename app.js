@@ -12,9 +12,9 @@ const corsOptions = {
     optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
 
-const PORT = process.env.PORT
+const PORT =  process.env.PORT
 
-const apiUrl = 'https://uat.ambsuperapi.com';
+const apiUrl = process.env.AMB_API_ENDPOINT; 
 const agentUsername = 'techautodev';
 const apiKey = 'techautodev@456';
 const productId = 'LIVECASINO';
